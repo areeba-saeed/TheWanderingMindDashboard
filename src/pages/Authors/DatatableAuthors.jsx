@@ -5,10 +5,9 @@ import { categoryColumns } from "../../datatablesource";
 import axios from "axios";
 import PopupAlert from "../../components/popupalert/popupAlert";
 
-const DatatableCategory = () => {
-  const [categories, setcategories] = useState([]);
+const DatatableAuthors = () => {
+  const [authors, setauthors] = useState([]);
   const [name, setname] = useState("");
-  const [image, setImage] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [popUpShow, setPopupshow] = useState(false);
@@ -19,27 +18,23 @@ const DatatableCategory = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/categories")
+      .get("http://localhost:5000/api/authors")
       .then((response) => {
-        setcategories(response.data);
+        setauthors(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
-  }, [categories]);
+  }, [authors]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("image", image);
+    const data = { name: name };
 
     axios
-      .post("http://localhost:5000/api/categories", formData)
+      .post("http://localhost:5000/api/authors", data)
       .then((res) => {
-        console.log(res.data);
-        setcategories(res.data);
-        setPopupText(`Category Added`);
+        setPopupText(`Author Added`);
         setname("");
         setPopupshow(true);
         setOpenModal(false);
@@ -57,13 +52,12 @@ const DatatableCategory = () => {
       });
   };
   const handleUpdate = (id) => {
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("image", image);
+    const data = { name: name };
+
     axios
-      .patch(`http://localhost:5000/api/categories/${id}`, formData)
+      .patch(`http://localhost:5000/api/authors/${id}`, data)
       .then((res) => {
-        setPopupText(`Category Updated`);
+        setPopupText(`Author Updated`);
         setname("");
         setPopupshow(true);
         setOpenModal(false);
@@ -79,26 +73,24 @@ const DatatableCategory = () => {
   };
 
   const handleDelete = (id) => {
-    axios
-      .delete("http://localhost:5000/api/categories/" + id)
-      .then((response) => {
-        console.log(response.data);
-        setPopupshow(true);
-        setPopupText("Category Deleted");
-        setTimeout(() => {
-          setPopupshow(false);
-        }, 2000);
-      });
+    axios.delete("http://localhost:5000/api/authors/" + id).then((response) => {
+      console.log(response.data);
+      setPopupshow(true);
+      setPopupText("Authors Deleted");
+      setTimeout(() => {
+        setPopupshow(false);
+      }, 2000);
+    });
   };
 
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
       axios
-        .delete("http://localhost:5000/api/categories/" + row)
+        .delete("http://localhost:5000/api/authors/" + row)
         .then((response) => {
-          setcategories(response.data);
+          setauthors(response.data);
           setPopupshow(true);
-          setPopupText(`${selectedRows.length} Categories Deleted`);
+          setPopupText(`${selectedRows.length} Authors Deleted`);
         });
     });
     setTimeout(() => {
@@ -109,21 +101,7 @@ const DatatableCategory = () => {
 
   const actionColumn = [
     { field: "name", headerName: "Name", width: 200 },
-    {
-      field: "image",
-      headerName: "Image",
-      width: 200,
-      renderCell: (params) => {
-        const imageUrl = `http://localhost:5000/api/categories/images/${params.row.image}`;
-        return (
-          <img
-            src={imageUrl}
-            alt={params.row.image}
-            style={{ width: 40, height: 40 }}
-          />
-        );
-      },
-    },
+
     {
       field: "action",
       headerName: "Action",
@@ -153,14 +131,14 @@ const DatatableCategory = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Categories
+        Authors
         <div
           className="link-new"
           onClick={() => {
             setOpenModal(true);
             setname("");
           }}>
-          Add Category
+          Add Authors
         </div>
       </div>
       {selectedRows.length > 0 ? (
@@ -190,18 +168,11 @@ const DatatableCategory = () => {
               <form className="category-new" onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  placeholder="Category Name"
+                  placeholder="Authors Name"
                   className="category-form"
                   value={name}
                   onChange={(e) => {
                     setname(e.target.value);
-                  }}
-                />
-                <input
-                  type="file"
-                  className="category-image"
-                  onChange={(e) => {
-                    setImage(e.target.files[0]);
                   }}
                 />
 
@@ -230,24 +201,16 @@ const DatatableCategory = () => {
             <div style={{ margin: 40 }}>
               <form
                 className="category-new"
-                onSubmit={(e) => {
-                  e.preventDefault();
+                onSubmit={() => {
                   handleUpdate(selectedRow);
                 }}>
                 <input
                   type="text"
-                  placeholder="Category Name"
+                  placeholder="Authors Name"
                   className="category-form"
                   value={name}
                   onChange={(e) => {
                     setname(e.target.value);
-                  }}
-                />
-                <input
-                  type="file"
-                  className="category-image"
-                  onChange={(e) => {
-                    setImage(e.target.files[0]);
                   }}
                 />
 
@@ -264,7 +227,7 @@ const DatatableCategory = () => {
           <div
             className="popupInner"
             style={
-              popUpShow && popUpText === "Category Added"
+              popUpShow && popUpText === "Authors Added"
                 ? {
                     backgroundColor: "#8AFF8A",
                     borderWidth: 1,
@@ -281,7 +244,7 @@ const DatatableCategory = () => {
 
       <DataGrid
         className="datagrid"
-        rows={categories}
+        rows={authors}
         columns={actionColumn}
         checkboxSelection={true}
         onSelectionModelChange={(newSelection) => {
@@ -297,4 +260,4 @@ const DatatableCategory = () => {
   );
 };
 
-export default DatatableCategory;
+export default DatatableAuthors;

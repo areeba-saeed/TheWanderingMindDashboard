@@ -12,9 +12,12 @@ import { useNavigate } from "react-router-dom";
 const NewBook = ({ title }) => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
+  const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
+  const [image, setImage] = useState(null);
   const [price, setPrice] = useState("");
   const [allCategories, setAllCategories] = useState([]);
+  const [allAuthors, setAllAuthors] = useState([]);
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -24,9 +27,15 @@ const NewBook = ({ title }) => {
     axios
       .get("http://localhost:5000/api/categories")
       .then((response) => {
-        if (response.data.length > 0) {
-          setAllCategories(response.data);
-        }
+        setAllCategories(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    axios
+      .get("http://localhost:5000/api/authors")
+      .then((response) => {
+        setAllAuthors(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -35,19 +44,21 @@ const NewBook = ({ title }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = {
-      name: name,
-      description: description,
-      price: price,
-      category: category,
-    };
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("image", image);
+    formData.append("price", price);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("author", author);
 
     axios
-      .post("http://localhost:5000/api/books/", data)
+      .post("http://localhost:5000/api/books/", formData)
       .then((response) => {
         setName("");
         setPrice("");
         setDescription("");
+        setAuthor("");
         setCategory("");
         setPopupshow(true);
         setPopupText("Book Added");
@@ -117,6 +128,18 @@ const NewBook = ({ title }) => {
                     setPrice(e.target.value);
                   }}
                 />
+                <label className="label-form">Book Author</label>
+                <select
+                  className="input-form"
+                  value={author}
+                  onChange={(e) => {
+                    setAuthor(e.target.value);
+                  }}>
+                  <option value="">Choose a author</option>
+                  {allAuthors.map((data) => {
+                    return <option value={data._id}>{data.name}</option>;
+                  })}
+                </select>
                 <label className="label-form">Book Category</label>
                 <select
                   className="input-form"
@@ -134,7 +157,14 @@ const NewBook = ({ title }) => {
                   value={description}
                   onChange={(value) => setDescription(value)}
                 />
-
+                <label className="label-form">Book Image</label>
+                <input
+                  type="file"
+                  className="category-image"
+                  onChange={(e) => {
+                    setImage(e.target.files[0]);
+                  }}
+                />
                 <button className="createButton">Add</button>
               </div>
             </form>

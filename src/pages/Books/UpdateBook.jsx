@@ -3,49 +3,41 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PopupAlert from "../../components/popupalert/popupAlert";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const UpdateBook = ({ title }) => {
-  const [file, setFile] = useState("");
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
+  const location = useLocation();
+  const data = location.state.data;
+  const [name, setName] = useState(data.name);
+  const [category, setCategory] = useState(data.category._id);
+  const [description, setDescription] = useState(data.description);
+  const [image, setImage] = useState(null);
+  const [author, setAuthor] = useState(data.author._id);
+  const [price, setPrice] = useState(data.price);
   const [allCategories, setAllCategories] = useState([]);
-  const [productId, setBookId] = useState("");
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
-  const [errorMessage, setErrorMessage] = useState(false);
+  const [allAuthors, setAllAuthors] = useState([]);
+  const navigate = useNavigate();
 
   const { id } = useParams();
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/categories")
+      .get("http://localhost:5000/api/categories")
       .then((response) => {
-        if (response.data.length > 0) {
-          setAllCategories(response.data);
-        }
+        setAllCategories(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
-
     axios
-      .get("http://localhost:5000/api/books")
+      .get("http://localhost:5000/api/authors")
       .then((response) => {
-        if (response.data.length > 0) {
-          const user = response.data.find((user) => user._id === id);
-          if (user) {
-            setName(user.name);
-            setCategory(user.category);
-            setDescription(user.description);
-            setPrice(user.price);
-            setBookId(user.productId);
-            setFile(user.image);
-          }
-        }
+        setAllAuthors(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -54,34 +46,30 @@ const UpdateBook = ({ title }) => {
 
   const handleUpdate = (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("productId", productId);
+    formData.append("image", image);
     formData.append("price", price);
     formData.append("description", description);
     formData.append("category", category);
-    formData.append("image", file);
+    formData.append("author", author);
 
     axios
-      .post(`http://localhost:5000/products/update/${id}`, formData)
+      .patch(`http://localhost:5000/api/books/${id}`, formData)
       .then((res) => {
         console.log(res.data);
         setPopupshow(true);
-        setPopupText("Category Update");
+        setPopupText("Book Updated");
+        setTimeout(() => {
+          setPopupshow(false);
+          navigate("/books");
+        }, 1500);
       })
       .catch((err) => {
         console.log(err);
-        setErrorMessage(true); // will log "Book already exists"
       });
-    setTimeout(() => {
-      setPopupshow(false);
-    }, 2000);
   };
 
-  const handleImageUpload = (event) => {
-    setFile(event.target.files[0]);
-  };
   return (
     <div className="new">
       <Sidebar />
@@ -107,11 +95,6 @@ const UpdateBook = ({ title }) => {
         )}
         <div className="bottom">
           <div className="right">
-            {errorMessage ? (
-              <div style={{ color: "red", fontSize: 10 }}>
-                Book with same category already exists
-              </div>
-            ) : null}
             <form className="form-new" onSubmit={handleUpdate}>
               <div className="formInput">
                 <label className="label-form">Book Name</label>
@@ -128,6 +111,22 @@ const UpdateBook = ({ title }) => {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                 />
+                <label className="label-form">Book Author</label>
+                <select
+                  className="input-form"
+                  value={author}
+                  onChange={(e) => {
+                    setAuthor(e.target.value);
+                  }}>
+                  <option value="">Choose a author</option>
+                  {allAuthors.map((data) => {
+                    return (
+                      <option value={data._id} key={data._id}>
+                        {data.name}
+                      </option>
+                    );
+                  })}
+                </select>
                 <label className="label-form">Book Category</label>
                 <select
                   className="input-form"
@@ -136,28 +135,26 @@ const UpdateBook = ({ title }) => {
                     setCategory(e.target.value);
                   }}>
                   {allCategories.map((data) => {
-                    return <option value={`${data.name}`}>{data.name}</option>;
+                    return (
+                      <option value={data._id} key={data._id}>
+                        {data.name}
+                      </option>
+                    );
                   })}
                 </select>
                 <label className="label-form">Book Description</label>
-                <textarea
-                  name="message"
-                  rows="5"
-                  cols="10"
-                  className="input-form"
+                <ReactQuill
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(value) => setDescription(value)}
                 />
-                <label className="label-form">Book Image (PNG/JPEG/JPG)</label>
-                <div className="formInput">
-                  <input
-                    type="file"
-                    id="myFile"
-                    accept=".png, .jpg, .jpeg"
-                    name="myFile"
-                    onChange={handleImageUpload}
-                  />
-                </div>
+                <label className="label-form">Book Image</label>
+                <input
+                  type="file"
+                  className="category-image"
+                  onChange={(e) => {
+                    setImage(e.target.files[0]);
+                  }}
+                />
                 <button className="createButton">Update</button>
               </div>
             </form>

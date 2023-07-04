@@ -9,10 +9,13 @@ import PopupAlert from "../../components/popupalert/popupAlert";
 const DatatableBooks = () => {
   const [books, setbooks] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [openImageModal, setOpenImageModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [image, setImage] = useState(null);
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     axios
@@ -56,15 +59,51 @@ const DatatableBooks = () => {
     setSelectedRows([]);
   };
 
+  const handleImageUpload = (id) => {
+    const formData = new FormData();
+    formData.append("image", image);
+    axios
+      .patch(`http://localhost:5000/api/books/bookImage/${id}`, formData)
+      .then((response) => {
+        setImages(response.data);
+        setPopupshow(true);
+        setPopupText(`Image Added`);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   const actionColumn = [
-    { field: "name", headerName: "Name", width: 400 },
+    { field: "name", headerName: "Name", width: 200 },
     {
       field: "category.name",
       headerName: "Category",
       width: 200,
       valueGetter: (params) => params.row.category.name,
     },
+    {
+      field: "author.name",
+      headerName: "Author",
+      width: 200,
+      valueGetter: (params) => params.row.author.name,
+    },
     { field: "price", headerName: "Price", width: 200 },
+    {
+      field: "image",
+      headerName: "Image",
+      width: 200,
+      renderCell: (params) => {
+        const imageUrl = `http://localhost:5000/api/books/images/${params.row.image}`;
+        return (
+          <img
+            src={imageUrl}
+            alt={params.row.image}
+            style={{ width: 40, height: 40 }}
+          />
+        );
+      },
+    },
     {
       field: "action",
       headerName: "Action",
@@ -76,13 +115,13 @@ const DatatableBooks = () => {
               className="viewButton"
               onClick={() => {
                 setSelectedRow(params.row);
-                console.log(params.row);
                 setOpenModal(true);
               }}>
               View
             </div>
             <Link
               to={`/books/update/${params.id}`}
+              state={{ data: params.row }}
               style={{ textDecoration: "none" }}>
               <div className="viewButton">Update</div>
             </Link>
@@ -114,7 +153,7 @@ const DatatableBooks = () => {
       ) : null}
       {openModal ? (
         <div className="modal">
-          <div className="modalInner">
+          <div className="modalInnerExpanded">
             <p className="closeModal" onClick={() => setOpenModal(false)}>
               &times;
             </p>
@@ -131,12 +170,48 @@ const DatatableBooks = () => {
                 dangerouslySetInnerHTML={{
                   __html: selectedRow.description,
                 }}></div>
+              <h6>Image:</h6>
 
-              {/*  <p className="modalText">Product Image: </p>
-              <img
-                src={`http://localhost:5000/api/books/${selectedRow.image}`}
-                width={"300"}
-      />*/}
+              <div>
+                <img
+                  src={`http://localhost:5000/api/books/images/${selectedRow.image}`}
+                  alt={selectedRow.image}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
+      {openImageModal ? (
+        <div className="modal">
+          <div className="modalInnerExpanded">
+            <p className="closeModal" onClick={() => setOpenImageModal(false)}>
+              &times;
+            </p>
+            <div style={{ margin: 40 }}>
+              <form onSubmit={handleImageUpload}>
+                <h6>File:</h6>
+                <input
+                  type="file"
+                  className="category-image"
+                  onChange={(e) => {
+                    setImage(e.target.files[0]);
+                  }}
+                />
+                <button className="createButton">Add</button>
+              </form>
+              <div>
+                {images.map((row) => {
+                  const imageUrl = `http://localhost:5000/api/books/images/${row}`;
+                  return (
+                    <div>
+                      <img src={imageUrl} alt={row} />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import UpdateUsers from "../pages/Users/UpdateUsers";
 import Orders from "../pages/NewOrders/Orders";
 import OrderHistory from "../pages/OrderHistory/OrderHistory";
 import Books from "../pages/Books/Books";
+import Authors from "../pages/Authors/Authors";
 
 function Adminroutes() {
   return (
@@ -20,6 +21,9 @@ function Adminroutes() {
 
             <Route path="categories">
               <Route index element={<Categories />} />
+            </Route>
+            <Route path="authors">
+              <Route index element={<Authors />} />
             </Route>
 
             <Route path="books">
