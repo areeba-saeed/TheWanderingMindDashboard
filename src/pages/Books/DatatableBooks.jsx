@@ -6,8 +6,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PopupAlert from "../../components/popupalert/popupAlert";
 
-const DatatableProducts = () => {
-  const [products, setproducts] = useState([]);
+const DatatableBooks = () => {
+  const [books, setbooks] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [popUpShow, setPopupshow] = useState(false);
@@ -16,10 +16,10 @@ const DatatableProducts = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/products")
+      .get("http://localhost:5000/api/books")
       .then((response) => {
         if (response.data.length > 0) {
-          setproducts(response.data);
+          setbooks(response.data);
         }
       })
       .catch((error) => {
@@ -28,11 +28,11 @@ const DatatableProducts = () => {
   }, []);
 
   const handleDelete = (id) => {
-    axios.delete("http://localhost:5000/products/" + id).then((response) => {
+    axios.delete("http://localhost:5000/api/books/" + id).then((response) => {
       console.log(response.data);
     });
 
-    setproducts(products.filter((el) => el._id !== id));
+    setbooks(books.filter((el) => el._id !== id));
     setPopupshow(true);
     setPopupText("Category Deleted");
     setTimeout(() => {
@@ -42,11 +42,13 @@ const DatatableProducts = () => {
 
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
-      axios.delete("http://localhost:5000/products/" + row).then((response) => {
-        setproducts(response.data);
-        setPopupshow(true);
-        setPopupText(`${selectedRows.length} Products Deleted`);
-      });
+      axios
+        .delete("http://localhost:5000/api/books/" + row)
+        .then((response) => {
+          setbooks(response.data);
+          setPopupshow(true);
+          setPopupText(`${selectedRows.length} Books Deleted`);
+        });
     });
     setTimeout(() => {
       setPopupshow(false);
@@ -55,6 +57,14 @@ const DatatableProducts = () => {
   };
 
   const actionColumn = [
+    { field: "name", headerName: "Name", width: 400 },
+    {
+      field: "category.name",
+      headerName: "Category",
+      width: 200,
+      valueGetter: (params) => params.row.category.name,
+    },
+    { field: "price", headerName: "Price", width: 200 },
     {
       field: "action",
       headerName: "Action",
@@ -72,7 +82,7 @@ const DatatableProducts = () => {
               View
             </div>
             <Link
-              to={`/products/update/${params.id}`}
+              to={`/books/update/${params.id}`}
               style={{ textDecoration: "none" }}>
               <div className="viewButton">Update</div>
             </Link>
@@ -89,9 +99,9 @@ const DatatableProducts = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Products
-        <Link to="/products/new" className="link-new">
-          Add Product
+        Books
+        <Link to="/books/new" className="link-new">
+          Add Book
         </Link>
       </div>
       {selectedRows.length > 0 ? (
@@ -109,18 +119,24 @@ const DatatableProducts = () => {
               &times;
             </p>
             <div style={{ margin: 40 }}>
-              <p className="modalText">Product Id: {selectedRow.productId}</p>
-              <p className="modalText">Product Name: {selectedRow.name}</p>
-              <p className="modalText">Product Price: {selectedRow.price}</p>
-              <p className="modalText">
-                Product Description: {selectedRow.description}
-              </p>
+              <h6>Name:</h6>
+              <p className="modalText">{selectedRow.name}</p>
+              <h6>Price:</h6>
+              <p className="modalText">{selectedRow.price}</p>
+              <h6>Category:</h6>
+              <p className="modalText">{selectedRow.category.name}</p>
+              <h6>Description:</h6>
+              <div
+                className="modalText"
+                dangerouslySetInnerHTML={{
+                  __html: selectedRow.description,
+                }}></div>
 
-              <p className="modalText">Product Image: </p>
+              {/*  <p className="modalText">Product Image: </p>
               <img
-                src={`http://localhost:5000/products/${selectedRow.image}`}
+                src={`http://localhost:5000/api/books/${selectedRow.image}`}
                 width={"300"}
-              />
+      />*/}
             </div>
           </div>
         </div>
@@ -145,8 +161,8 @@ const DatatableProducts = () => {
       )}
       <DataGrid
         className="datagrid"
-        rows={products}
-        columns={productColumns.concat(actionColumn)}
+        rows={books}
+        columns={actionColumn}
         checkboxSelection={true}
         onSelectionModelChange={(newSelection) => {
           setSelectedRows(newSelection);
@@ -161,4 +177,4 @@ const DatatableProducts = () => {
   );
 };
 
-export default DatatableProducts;
+export default DatatableBooks;

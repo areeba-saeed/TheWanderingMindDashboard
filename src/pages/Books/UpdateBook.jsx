@@ -6,14 +6,14 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import PopupAlert from "../../components/popupalert/popupAlert";
 
-const UpdateProduct = ({ title }) => {
+const UpdateBook = ({ title }) => {
   const [file, setFile] = useState("");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [allCategories, setAllCategories] = useState([]);
-  const [productId, setProductId] = useState("");
+  const [productId, setBookId] = useState("");
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
   const [errorMessage, setErrorMessage] = useState(false);
@@ -33,7 +33,7 @@ const UpdateProduct = ({ title }) => {
       });
 
     axios
-      .get("http://localhost:5000/products")
+      .get("http://localhost:5000/api/books")
       .then((response) => {
         if (response.data.length > 0) {
           const user = response.data.find((user) => user._id === id);
@@ -42,7 +42,7 @@ const UpdateProduct = ({ title }) => {
             setCategory(user.category);
             setDescription(user.description);
             setPrice(user.price);
-            setProductId(user.productId);
+            setBookId(user.productId);
             setFile(user.image);
           }
         }
@@ -72,7 +72,7 @@ const UpdateProduct = ({ title }) => {
       })
       .catch((err) => {
         console.log(err);
-        setErrorMessage(true); // will log "Product already exists"
+        setErrorMessage(true); // will log "Book already exists"
       });
     setTimeout(() => {
       setPopupshow(false);
@@ -109,26 +109,26 @@ const UpdateProduct = ({ title }) => {
           <div className="right">
             {errorMessage ? (
               <div style={{ color: "red", fontSize: 10 }}>
-                Product with same category already exists
+                Book with same category already exists
               </div>
             ) : null}
             <form className="form-new" onSubmit={handleUpdate}>
               <div className="formInput">
-                <label className="label-form">Product Name</label>
+                <label className="label-form">Book Name</label>
                 <input
                   type="text"
                   className="input-form"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                <label className="label-form">Product Price</label>
+                <label className="label-form">Book Price</label>
                 <input
                   type="number"
                   className="input-form"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                 />
-                <label className="label-form">Product Category</label>
+                <label className="label-form">Book Category</label>
                 <select
                   className="input-form"
                   value={category}
@@ -139,7 +139,7 @@ const UpdateProduct = ({ title }) => {
                     return <option value={`${data.name}`}>{data.name}</option>;
                   })}
                 </select>
-                <label className="label-form">Product Description</label>
+                <label className="label-form">Book Description</label>
                 <textarea
                   name="message"
                   rows="5"
@@ -148,9 +148,7 @@ const UpdateProduct = ({ title }) => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
-                <label className="label-form">
-                  Product Image (PNG/JPEG/JPG)
-                </label>
+                <label className="label-form">Book Image (PNG/JPEG/JPG)</label>
                 <div className="formInput">
                   <input
                     type="file"
@@ -170,4 +168,4 @@ const UpdateProduct = ({ title }) => {
   );
 };
 
-export default UpdateProduct;
+export default UpdateBook;

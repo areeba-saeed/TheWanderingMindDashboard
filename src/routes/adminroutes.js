@@ -1,16 +1,14 @@
 import React from "react";
-import Products from "../pages/Products/Products";
-
 import Home from "../pages/home/Home";
-import NewProduct from "../pages/Products/NewProduct";
+import NewBook from "../pages/Books/NewBook";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { prductsInputs, productsUpdate } from "../formSource";
-import UpdateProduct from "../pages/Products/UpdateProdcut";
+import UpdateBook from "../pages/Books/UpdateBook.jsx";
 import Categories from "../pages/Categories/Categories";
 import Users from "../pages/Users/Users";
 import UpdateUsers from "../pages/Users/UpdateUsers";
 import Orders from "../pages/NewOrders/Orders";
 import OrderHistory from "../pages/OrderHistory/OrderHistory";
+import Books from "../pages/Books/Books";
 
 function Adminroutes() {
   return (
@@ -24,34 +22,19 @@ function Adminroutes() {
               <Route index element={<Categories />} />
             </Route>
 
-            <Route path="products">
-              <Route index element={<Products />} />
-              <Route
-                path="new"
-                element={
-                  <NewProduct inputs={prductsInputs} title="Add New Product" />
-                }
-              />
+            <Route path="books">
+              <Route index element={<Books />} />
+              <Route path="new" element={<NewBook title="Add New Book" />} />
               <Route
                 path="update/:id"
-                element={
-                  <UpdateProduct
-                    inputs={productsUpdate}
-                    title="Update Products"
-                  />
-                }
+                element={<UpdateBook title="Update Books" />}
               />
             </Route>
             <Route path="users">
               <Route index element={<Users />} />
               <Route
                 path="update/:id"
-                element={
-                  <UpdateUsers
-                    inputs={productsUpdate}
-                    title="Update Users"
-                  />
-                }
+                element={<UpdateUsers title="Update Users" />}
               />
             </Route>
             <Route path="orders">

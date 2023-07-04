@@ -4,29 +4,25 @@ import Navbar from "../../components/navbar/Navbar";
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
-import { uid } from "uid";
 import PopupAlert from "../../components/popupalert/popupAlert";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { useNavigate } from "react-router-dom";
 
-const NewProduct = ({ title }) => {
+const NewBook = ({ title }) => {
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("Choose a category");
+  const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [allCategories, setAllCategories] = useState([]);
-  const [file, setFile] = useState(null);
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
-  const [errorMessage, setErrorMessage] = useState(false);
-
-  const randomString = uid();
-
-  const randomDigits = randomString
-    .replace(/[^0-9]/g, "") // remove non-digits
-    .substring(0, 5); // extract first 5 digits
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/categories")
+      .get("http://localhost:5000/api/categories")
       .then((response) => {
         if (response.data.length > 0) {
           setAllCategories(response.data);
@@ -39,48 +35,33 @@ const NewProduct = ({ title }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("productId", randomDigits);
-    formData.append("price", price);
-    formData.append("description", description);
-    formData.append("category", category);
-    formData.append("image", file);
+    const data = {
+      name: name,
+      description: description,
+      price: price,
+      category: category,
+    };
 
     axios
-      .post("http://localhost:5000/products/new", formData)
+      .post("http://localhost:5000/api/books/", data)
       .then((response) => {
-        console.log(response.data);
-        if (response.data.error === "Product already exists") {
-          setErrorMessage(true);
-          setName("");
-          setPrice("");
-          setDescription("");
-          setCategory("Choose a category");
-          setFile(null);
-        } else {
-          setName("");
-          setPrice("");
-          setDescription("");
-          setCategory("Choose a category");
-          setPopupshow(true);
-          setPopupText("Category Added");
-          setErrorMessage(false);
-          setFile(null);
-        }
+        setName("");
+        setPrice("");
+        setDescription("");
+        setCategory("");
+        setPopupshow(true);
+        setPopupText("Book Added");
+        setTimeout(() => {
+          setPopupshow(false);
+          navigate("/books");
+        }, 1500);
       })
       .catch((error) => {
         console.error(error);
-        setErrorMessage(true); // will log "Product already exists"
+        if (error.response.data) {
+          setErrorMessage(error.response.data);
+        }
       });
-    setTimeout(() => {
-      setPopupshow(false);
-    }, 2000);
-  };
-
-  const handleImageUpload = (event) => {
-    setFile(event.target.files[0]);
   };
 
   return (
@@ -108,11 +89,8 @@ const NewProduct = ({ title }) => {
         </div>
         <div className="bottom">
           <div className="right">
-            {errorMessage ? (
-              <div style={{ color: "red", fontSize: 10 }}>
-                Product with same category already exists
-              </div>
-            ) : null}
+            <div style={{ color: "red", fontSize: 15 }}>{errorMessage}</div>
+
             <form
               className="form-new"
               onSubmit={handleSubmit}
@@ -120,17 +98,16 @@ const NewProduct = ({ title }) => {
               encType="multipart/form-data"
               action="/upload">
               <div className="formInput">
-                <label className="label-form">Product Name</label>
+                <label className="label-form">Book Name</label>
                 <input
                   type="text"
-                  placeholder="Chicken Biryani"
                   className="input-form"
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
                   }}
                 />
-                <label className="label-form">Product Price</label>
+                <label className="label-form">Book Price</label>
                 <input
                   type="number"
                   placeholder="220"
@@ -140,7 +117,7 @@ const NewProduct = ({ title }) => {
                     setPrice(e.target.value);
                   }}
                 />
-                <label className="label-form">Product Category</label>
+                <label className="label-form">Book Category</label>
                 <select
                   className="input-form"
                   value={category}
@@ -149,31 +126,15 @@ const NewProduct = ({ title }) => {
                   }}>
                   <option value="">Choose a category</option>
                   {allCategories.map((data) => {
-                    return <option value={`${data.name}`}>{data.name}</option>;
+                    return <option value={data._id}>{data.name}</option>;
                   })}
                 </select>
-                <label className="label-form">Product Description</label>
-                <textarea
-                  name="message"
-                  rows="5"
-                  cols="10"
-                  className="input-form"
-                  placeholder="Description"
+                <label className="label-form">Book Description</label>
+                <ReactQuill
                   value={description}
-                  onChange={(e) => {
-                    setDescription(e.target.value);
-                  }}
+                  onChange={(value) => setDescription(value)}
                 />
-                <label className="label-form">
-                  Product Image (PNG/JPEG/JPG)
-                </label>
-                <input
-                  type="file"
-                  id="myFile"
-                  accept=".png, .jpg, .jpeg"
-                  name="myFile"
-                  onChange={handleImageUpload}
-                />
+
                 <button className="createButton">Add</button>
               </div>
             </form>
@@ -184,4 +145,4 @@ const NewProduct = ({ title }) => {
   );
 };
 
-export default NewProduct;
+export default NewBook;

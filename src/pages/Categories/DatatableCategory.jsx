@@ -2,76 +2,99 @@ import "../../style/datatable.css";
 import { DataGrid } from "@mui/x-data-grid";
 import React, { useState, useEffect } from "react";
 import { categoryColumns } from "../../datatablesource";
-import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import PopupAlert from "../../components/popupalert/popupAlert";
 
 const DatatableCategory = () => {
   const [categories, setcategories] = useState([]);
-  const [categoryName, setCategoryName] = useState("");
+  const [name, setname] = useState("");
+  const [image, setImage] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
-  const [errorMessage, setErrorMessage] = useState(false);
+  const [selectedRow, setSelectedRow] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/categories")
+      .get("http://localhost:5000/api/categories")
       .then((response) => {
-        if (response.data.length > 0) {
-          setcategories(response.data);
-          setCategoryName(response.data[0].name);
-        }
+        setcategories(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+  }, [categories]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const category = {
-      name: categoryName,
-    };
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("image", image);
 
     axios
-      .post("http://localhost:5000/categories", category)
+      .post("http://localhost:5000/api/categories", formData)
       .then((res) => {
         console.log(res.data);
         setcategories(res.data);
         setPopupText(`Category Added`);
-        setCategoryName("");
+        setname("");
         setPopupshow(true);
         setOpenModal(false);
         setErrorMessage(false);
+        setTimeout(() => {
+          setPopupshow(false);
+          window.location.reload();
+        }, 2000);
       })
       .catch((err) => {
-        console.log(err.response.data);
-        setErrorMessage(true);
+        console.log(err);
+        if (err.response.data) {
+          setErrorMessage(err.response.data);
+        }
       });
-    setTimeout(() => {
-      setPopupshow(false);
-    }, 2000);
+  };
+  const handleUpdate = (id) => {
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("image", image);
+    axios
+      .patch(`http://localhost:5000/api/categories/${id}`, formData)
+      .then((res) => {
+        setPopupText(`Category Updated`);
+        setname("");
+        setPopupshow(true);
+        setOpenModal(false);
+        setErrorMessage(false);
+        setTimeout(() => {
+          setPopupshow(false);
+          window.location.reload();
+        }, 2000);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleDelete = (id) => {
-    axios.delete("http://localhost:5000/categories/" + id).then((response) => {
-      console.log(response.data);
-    });
-    setcategories(categories.filter((el) => el._id !== id));
-    setPopupshow(true);
-    setPopupText("Category Deleted");
-    setTimeout(() => {
-      setPopupshow(false);
-    }, 2000);
+    axios
+      .delete("http://localhost:5000/api/categories/" + id)
+      .then((response) => {
+        console.log(response.data);
+        setPopupshow(true);
+        setPopupText("Category Deleted");
+        setTimeout(() => {
+          setPopupshow(false);
+        }, 2000);
+      });
   };
 
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
       axios
-        .delete("http://localhost:5000/categories/" + row)
+        .delete("http://localhost:5000/api/categories/" + row)
         .then((response) => {
           setcategories(response.data);
           setPopupshow(true);
@@ -85,6 +108,23 @@ const DatatableCategory = () => {
   };
 
   const actionColumn = [
+    { field: "name", headerName: "Name", width: 200 },
+    {
+      field: "image",
+      headerName: "Image",
+      width: 200,
+      renderCell: (params) => {
+        const imageUrl = `http://localhost:5000/api/categories/images/${params.row.image}`;
+        return (
+          <img
+            src={imageUrl}
+            alt={params.row.image}
+            style={{ width: 40, height: 40 }}
+          />
+        );
+      },
+      // ... other column configuration
+    },
     {
       field: "action",
       headerName: "Action",
@@ -92,6 +132,15 @@ const DatatableCategory = () => {
       renderCell: (params) => {
         return (
           <div className="cellAction">
+            <div
+              className="deleteButton"
+              onClick={() => {
+                setOpenUpdateModal(true);
+                setname(params.row.name);
+                setSelectedRow(params.row._id);
+              }}>
+              Update
+            </div>
             <div
               className="deleteButton"
               onClick={() => handleDelete(params.row._id)}>
@@ -110,7 +159,7 @@ const DatatableCategory = () => {
           className="link-new"
           onClick={() => {
             setOpenModal(true);
-            setCategoryName("");
+            setname("");
           }}>
           Add Category
         </div>
@@ -123,6 +172,8 @@ const DatatableCategory = () => {
           Delete Selected Rows
         </button>
       ) : null}
+
+      {/*Add*/}
       {openModal ? (
         <div className="modal">
           <div className="modalInner">
@@ -135,25 +186,72 @@ const DatatableCategory = () => {
               X
             </p>
             <div style={{ margin: 40 }}>
-              {errorMessage ? (
-                <div style={{ color: "red", fontSize: 10 }}>
-                  Category already exist
-                </div>
-              ) : (
-                ""
-              )}
+              <div style={{ color: "red", fontSize: 15 }}>{errorMessage}</div>
+
               <form className="category-new" onSubmit={handleSubmit}>
                 <input
                   type="text"
                   placeholder="Category Name"
                   className="category-form"
-                  value={categoryName}
+                  value={name}
                   onChange={(e) => {
-                    setCategoryName(e.target.value);
+                    setname(e.target.value);
+                  }}
+                />
+                <input
+                  type="file"
+                  className="category-image"
+                  onChange={(e) => {
+                    setImage(e.target.files[0]);
                   }}
                 />
 
                 <button className="createButton">Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
+
+      {/*Update*/}
+      {openUpdateModal ? (
+        <div className="modal">
+          <div className="modalInner">
+            <p
+              className="closeModal"
+              onClick={() => {
+                setOpenUpdateModal(false);
+                setname("");
+                setErrorMessage("");
+              }}>
+              X
+            </p>
+            <div style={{ margin: 40 }}>
+              <form
+                className="category-new"
+                onSubmit={() => {
+                  handleUpdate(selectedRow);
+                }}>
+                <input
+                  type="text"
+                  placeholder="Category Name"
+                  className="category-form"
+                  value={name}
+                  onChange={(e) => {
+                    setname(e.target.value);
+                  }}
+                />
+                <input
+                  type="file"
+                  className="category-image"
+                  onChange={(e) => {
+                    setImage(e.target.files[0]);
+                  }}
+                />
+
+                <button className="createButton">Update</button>
               </form>
             </div>
           </div>
@@ -184,7 +282,7 @@ const DatatableCategory = () => {
       <DataGrid
         className="datagrid"
         rows={categories}
-        columns={categoryColumns.concat(actionColumn)}
+        columns={actionColumn}
         checkboxSelection={true}
         onSelectionModelChange={(newSelection) => {
           setSelectedRows(newSelection);
