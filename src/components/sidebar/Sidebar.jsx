@@ -11,7 +11,9 @@ const Sidebar = () => {
 
   useEffect(() => {
     axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/orders")
+      .get(
+        "https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/orders"
+      )
       .then((response) => {
         if (response.data.length > 0) {
           const filteredOrders = response.data.filter(
@@ -34,7 +36,7 @@ const Sidebar = () => {
       <hr className="break-sidebar" />
       <div className="center">
         <ul>
-          <Link to="/" style={{ textDecoration: "none" }}>
+          <Link to="/dashboard" style={{ textDecoration: "none" }}>
             <li>
               <DashboardIcon className="icon" />
               <span>Dashboard</span>
@@ -93,6 +95,12 @@ const Sidebar = () => {
             <li>
               <PersonOutlineIcon className="icon" />
               <span>Contact</span>
+            </li>
+          </Link>
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <li>
+              <PersonOutlineIcon className="icon" />
+              <span>Logout</span>
             </li>
           </Link>
         </ul>

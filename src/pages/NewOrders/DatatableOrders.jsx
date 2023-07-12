@@ -101,7 +101,7 @@ const DatatableOrders = () => {
     {
       field: "totalPrice",
       headerName: "Total prcie",
-      width: 250,
+      width: 150,
     },
 
     {

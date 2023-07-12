@@ -9,6 +9,7 @@ import Orders from "../pages/NewOrders/Orders";
 import Books from "../pages/Books/Books";
 import Authors from "../pages/Authors/Authors";
 import Contact from "../pages/Contact/Contact";
+import Login from "../pages/Login/Login";
 
 function Adminroutes() {
   return (
@@ -16,7 +17,8 @@ function Adminroutes() {
       <BrowserRouter>
         <Routes>
           <Route path="/">
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/dashboard" element={<Home />} />
 
             <Route path="categories">
               <Route index element={<Categories />} />
