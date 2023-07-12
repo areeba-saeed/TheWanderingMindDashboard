@@ -1,18 +1,18 @@
 import "../../style/list.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
-import DatatableOrdersHistory from "./DatatableOrderHistory";
+import DatatableContact from "./DatatableContact";
 
-const OrderHistory = () => {
+const Contact = () => {
   return (
     <div className="list">
       <Sidebar />
       <div className="listContainer">
         <Navbar />
-        <DatatableOrdersHistory />
+        <DatatableContact />
       </div>
     </div>
   );
 };
 
-export default OrderHistory;
+export default Contact;

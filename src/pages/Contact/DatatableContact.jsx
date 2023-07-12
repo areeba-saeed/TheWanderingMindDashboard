@@ -1,37 +1,50 @@
 import "../../style/datatable.css";
 import { DataGrid } from "@mui/x-data-grid";
-import { userColumns } from "../../datatablesource";
-import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PopupAlert from "../../components/popupalert/popupAlert";
 
-const DatatableUsers = () => {
-  const [users, setUsers] = useState([]);
+const DatableContact = () => {
+  const [contact, setcontact] = useState([]);
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
+  const [state, setState] = useState("");
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/user")
+      .get("http://localhost:5000/api/contact")
       .then((response) => {
-        setUsers(response.data);
+        setcontact(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
-  }, [users]);
+  }, [contact]);
 
-  const handleDelete = (id) => {
+  const handleStatus = (id, status) => {
     axios
-      .delete("http://localhost:5000/api/user/delete/" + id)
+      .patch(`http://localhost:5000/api/contact/${id}`, { status: status })
       .then((response) => {
         console.log(response.data);
-      });
+        // setPopupText("Stauts changed");
+        // setPopupshow(true);
 
+        // setTimeout(() => {
+        //   setPopupshow(false);
+        // }, 2000);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const handleDelete = (id) => {
+    axios.delete("http://localhost:5000/api/contact/" + id).then((response) => {
+      console.log(response.data);
+    });
+    setPopupText("Contact Deleted");
     setPopupshow(true);
-    setPopupText("User Deleted");
+
     setTimeout(() => {
       setPopupshow(false);
     }, 2000);
@@ -40,10 +53,15 @@ const DatatableUsers = () => {
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
       axios
-        .delete("http://localhost:5000/api/user/delete/" + row)
+        .delete("http://localhost:5000/api/contact/" + row)
         .then((response) => {
+          console.log(response.data);
+          const filteredcontact = response.data.filter(
+            (contact) => contact.status[0] === "Completed"
+          );
+          setcontact(filteredcontact);
           setPopupshow(true);
-          setPopupText(`${selectedRows.length} Users Deleted`);
+          setPopupText(`${selectedRows.length} contact Deleted`);
         });
     });
     setTimeout(() => {
@@ -56,22 +74,60 @@ const DatatableUsers = () => {
     {
       field: "name",
       headerName: "Name",
-      width: 220,
+      width: 180,
     },
     {
       field: "email",
       headerName: "Email",
-      width: 280,
+      width: 180,
     },
     {
-      field: "phoneNo",
-      headerName: "Mobile number",
+      field: "message",
+      headerName: "Message",
       width: 180,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      width: 180,
+      renderCell: (params) => {
+        if (params.row.status === "Pending") {
+          return (
+            <div className="cellAction">
+              <p style={{ color: "red" }}>{params.row.status}</p>
+            </div>
+          );
+        } else {
+          return (
+            <div className="cellAction">
+              <p style={{ color: "green" }}>{params.row.status}</p>
+            </div>
+          );
+        }
+      },
+    },
+    {
+      field: "actionStatus",
+      headerName: "Change Status",
+      width: 180,
+      renderCell: (params) => {
+        return (
+          <select
+            value={state}
+            onChange={(e) => {
+              setState(e.target.value);
+              handleStatus(params.row._id, e.target.value);
+            }}>
+            <option value="Pending">Pending</option>
+            <option value="Answered">Answered</option>
+          </select>
+        );
+      },
     },
     {
       field: "action",
       headerName: "Action",
-      width: 180,
+      width: 300,
       renderCell: (params) => {
         return (
           <div className="cellAction">
@@ -87,7 +143,7 @@ const DatatableUsers = () => {
   ];
   return (
     <div className="datatable">
-      <div className="datatableTitle">Users</div>
+      <div className="datatableTitle">Contacts</div>
       {selectedRows.length > 0 ? (
         <button
           onClick={() => {
@@ -96,6 +152,7 @@ const DatatableUsers = () => {
           Delete Selected Rows
         </button>
       ) : null}
+
       {popUpShow ? (
         <div className="Popupmodal">
           <div
@@ -117,7 +174,7 @@ const DatatableUsers = () => {
       )}
       <DataGrid
         className="datagrid"
-        rows={users}
+        rows={contact}
         columns={actionColumn}
         checkboxSelection={true}
         onSelectionModelChange={(newSelection) => {
@@ -133,4 +190,4 @@ const DatatableUsers = () => {
   );
 };
 
-export default DatatableUsers;
+export default DatableContact;

@@ -4,6 +4,7 @@ import { orderColumns } from "../../datatablesource";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PopupAlert from "../../components/popupalert/popupAlert";
+import { green } from "@mui/material/colors";
 
 const DatatableOrders = () => {
   const [orders, setorders] = useState([]);
@@ -16,52 +17,37 @@ const DatatableOrders = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/orders")
+      .get("http://localhost:5000/api/orders")
       .then((response) => {
-        if (response.data.length > 0) {
-          const filteredOrders = response.data.filter(
-            (order) => order.status[0] !== "Completed"
-          );
-          setorders(filteredOrders);
-        }
+        setorders(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+  }, [orders]);
 
   const handleDelete = (id) => {
-    axios.delete("http://localhost:5000/orders/" + id).then((response) => {
+    axios.delete("http://localhost:5000/api/orders/" + id).then((response) => {
       console.log(response.data);
     });
     setPopupText("Order Deleted");
     setPopupshow(true);
-    setorders(orders.filter((el) => el._id !== id));
+
     setTimeout(() => {
       setPopupshow(false);
     }, 2000);
   };
 
-  const handleUpdateStatus = (status, orderId) => {
-    console.log(orderId);
-    console.log(status);
+  const handleUpdateStatus = (status, id) => {
     const updatedStatus = {
       status: status,
     };
     axios
-      .put("http://localhost:5000/orders/" + orderId, updatedStatus)
+      .patch("http://localhost:5000/api/orders/" + id, updatedStatus)
       .then((response) => {
         console.log(response.data);
-        axios.get("http://localhost:5000/orders").then((response) => {
-          if (response.data.length > 0) {
-            const filteredOrders = response.data.filter(
-              (order) => order.status[0] != "Completed"
-            );
-            setorders(filteredOrders);
-          }
-        });
       });
-    setPopupText("Order Status Updated");
+    setPopupText("Status Updated");
     setPopupshow(true);
     setTimeout(() => {
       setPopupshow(false);
@@ -70,12 +56,14 @@ const DatatableOrders = () => {
 
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
-      axios.delete("http://localhost:5000/orders/" + row).then((response) => {
-        console.log(response.data);
-        setorders(response.data);
-        setPopupshow(true);
-        setPopupText(`${selectedRows.length} Orders Deleted`);
-      });
+      axios
+        .delete("http://localhost:5000/api/orders/" + row)
+        .then((response) => {
+          console.log(response.data);
+          setorders(response.data);
+          setPopupshow(true);
+          setPopupText(`${selectedRows.length} Orders Deleted`);
+        });
     });
     setTimeout(() => {
       setPopupshow(false);
@@ -83,54 +71,85 @@ const DatatableOrders = () => {
     setSelectedRows([]);
   };
 
-  const handleGetData = (selectedRow) => {
-    const productIds = [
-      ...new Set(selectedRow.items.map((item) => item.productId)),
-    ];
-    axios
-      .get(`http://localhost:5000/products`)
-      .then((response) => {
-        const products = response.data.filter((product) => {
-          return productIds.includes(parseInt(product.productId));
-        });
-        setSelectedProducts(
-          products.map((product) => {
-            const item = selectedRow.items.find(
-              (item) => item.productId === parseInt(product.productId)
-            );
-            if (item) {
-              product.quantity = item.quantity;
-            }
-            return product;
-          })
-        );
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   const actionColumn = [
+    {
+      field: "userId.name",
+      headerName: "Username",
+      width: 220,
+      valueGetter: (params) => params.row.userId.name,
+    },
+    {
+      field: "email.name",
+      headerName: "Email",
+      width: 250,
+      valueGetter: (params) => params.row.userId.email,
+    },
+    {
+      field: "totalPrice",
+      headerName: "Total prcie",
+      width: 250,
+    },
+
     {
       field: "status",
       headerName: "Status",
       width: 180,
       renderCell: (params) => {
+        let statusColor = "";
+
+        if (params.row.status === "New Order") {
+          statusColor = "blue";
+        } else if (params.row.status === "Completed") {
+          statusColor = "green";
+        } else if (params.row.status === "Cancelled") {
+          statusColor = "red";
+        } else if (params.row.status === "On the way") {
+          statusColor = "#FFBA0D";
+        } else {
+          statusColor = "grey";
+        }
+
         return (
           <div className="cellAction">
-            <select
-              className="input-form"
-              defaultValue={params.row.status || "Pending"}
-              multiple={false}
-              onChange={(e) =>
-                handleUpdateStatus(e.target.value, params.row.orderId)
-              }>
-              <option value="Pending">Pending</option>
-              <option value="On the way">On the way</option>
-              <option value="Completed">Completed</option>
-            </select>
+            <p style={{ color: statusColor }}>{params.row.status}</p>
           </div>
         );
+      },
+    },
+
+    {
+      field: "actionState",
+      headerName: "Change status",
+      width: 180,
+      renderCell: (params) => {
+        if (
+          params.row.status === "Cancelled" ||
+          params.row.status === "Completed"
+        ) {
+          return (
+            <div className="cellAction">
+              <p>Cannot changed completed or cancelled order</p>
+            </div>
+          );
+        } else {
+          return (
+            <div className="cellAction">
+              <select
+                className="input-form"
+                defaultValue={params.row.status || "Pending"}
+                multiple={false}
+                onChange={(e) =>
+                  handleUpdateStatus(e.target.value, params.row._id)
+                }>
+                <option value="New Order">New Order</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="On the way">On the way</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          );
+        }
       },
     },
     {
@@ -144,7 +163,6 @@ const DatatableOrders = () => {
               className="viewButton"
               onClick={() => {
                 setSelectedRow(params.row);
-                handleGetData(params.row);
                 setOpenModal(true);
               }}>
               View
@@ -173,7 +191,7 @@ const DatatableOrders = () => {
       ) : null}
       {openModal ? (
         <div className="modal">
-          <div className="modalInner">
+          <div className="modalInnerExpanded">
             <p className="closeModal" onClick={() => setOpenModal(false)}>
               &times;
             </p>
@@ -186,42 +204,78 @@ const DatatableOrders = () => {
                 marginBottom: 40,
               }}>
               <div className="textWrapper">
-                <p className="totalText"> OrderID: </p>
-                <p className="totalText"> {selectedRow.orderId}</p>
+                <p className="totalText"> Username: </p>
+                <p className="totalText"> {selectedRow.userId.name}</p>
               </div>
               <div className="textWrapper">
-                <p className="totalText"> UserId: </p>
-                <p className="totalText"> {selectedRow.userId}</p>
+                <p className="totalText"> Email: </p>
+                <p className="totalText"> {selectedRow.userId.email}</p>
               </div>
               <div className="textWrapper">
-                <p className="totalText"> LotteryCode: </p>
-                <p className="totalText"> {selectedRow.lotteryCode}</p>
+                <p className="totalText"> Mobile number: </p>
+                <p className="totalText"> {selectedRow.userId.phoneNo}</p>
               </div>
+              <div className="textWrapper">
+                <p className="totalText"> Address: </p>
+                <p className="totalText"> {selectedRow.userId.address}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> Address 2: </p>
+                <p className="totalText"> {selectedRow.userId.address2}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> Country: </p>
+                <p className="totalText"> {selectedRow.userId.country}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> State: </p>
+                <p className="totalText"> {selectedRow.userId.state}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> Zip: </p>
+                <p className="totalText"> {selectedRow.userId.zip}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> Name on card: </p>
+                <p className="totalText"> {selectedRow.userId.nameOnCard}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> Credit card number: </p>
+                <p className="totalText"> {selectedRow.userId.creditNumber}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> Cvv: </p>
+                <p className="totalText"> {selectedRow.userId.cvv}</p>
+              </div>
+              <div className="textWrapper">
+                <p className="totalText"> Expiration: </p>
+                <p className="totalText"> {selectedRow.userId.expiration}</p>
+              </div>
+
               <div className="textWrapper">
                 <p className="totalText"> Status: </p>
                 <p className="statusPending"> {selectedRow.status}</p>
               </div>
-              <div className="modalTable">
-                {selectedProducts.map((data) => {
+              <div>
+                {selectedRow.items.map((data, index) => {
+                  const imageUrl = `http://localhost:5000/api/books/images/${data.productId.image}`;
                   return (
-                    <div className="borderModal">
-                      <div
-                        className="modalOrder"
-                        key={selectedProducts.productId}>
+                    <div style={{ margin: "30px 0px" }}>
+                      <div className="modalOrder" key={index}>
                         <div className="rowInfo">
                           <img
-                            src={`http://localhost:5000/products/${data.image}`}
+                            src={imageUrl}
                             width={"50"}
                             height={"50"}
                             className="img"
                           />
                           <p className="modalText ">
-                            {data.name} ({data.quantity})
+                            {data.productId.name} ({data.quantity})
                           </p>
                         </div>
 
                         <p className="modalText">
-                          {data.price * data.quantity} Rs.
+                          {data.productId.price * data.quantity}
                         </p>
                       </div>
                     </div>
@@ -230,7 +284,7 @@ const DatatableOrders = () => {
               </div>
               <div className="textWrapper">
                 <p className="totalText"> Total Price + Shipping: </p>
-                <p className="total"> {selectedRow.totalPrice} Rs.</p>
+                <p className="total"> {selectedRow.totalPrice} PKR</p>
               </div>
             </div>
           </div>
@@ -260,7 +314,7 @@ const DatatableOrders = () => {
       <DataGrid
         className="datagrid"
         rows={orders}
-        columns={orderColumns.concat(actionColumn)}
+        columns={actionColumn}
         checkboxSelection={true}
         onSelectionModelChange={(newSelection) => {
           setSelectedRows(newSelection);

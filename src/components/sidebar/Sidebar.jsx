@@ -11,11 +11,11 @@ const Sidebar = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/orders")
+      .get("http://localhost:5000/api/orders")
       .then((response) => {
         if (response.data.length > 0) {
           const filteredOrders = response.data.filter(
-            (order) => order.status[0] !== "Completed"
+            (order) => order.status === "New Order"
           );
           setNewOrderCount(filteredOrders.length);
         }
@@ -88,10 +88,11 @@ const Sidebar = () => {
               </span>
             </li>
           </Link>
-          <Link to="/ordershistory" style={{ textDecoration: "none" }}>
+
+          <Link to="/contact" style={{ textDecoration: "none" }}>
             <li>
               <PersonOutlineIcon className="icon" />
-              <span>Order History</span>
+              <span>Contact</span>
             </li>
           </Link>
         </ul>

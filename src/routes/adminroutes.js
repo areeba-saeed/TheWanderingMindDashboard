@@ -5,11 +5,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import UpdateBook from "../pages/Books/UpdateBook.jsx";
 import Categories from "../pages/Categories/Categories";
 import Users from "../pages/Users/Users";
-import UpdateUsers from "../pages/Users/UpdateUsers";
 import Orders from "../pages/NewOrders/Orders";
-import OrderHistory from "../pages/OrderHistory/OrderHistory";
 import Books from "../pages/Books/Books";
 import Authors from "../pages/Authors/Authors";
+import Contact from "../pages/Contact/Contact";
 
 function Adminroutes() {
   return (
@@ -36,16 +35,13 @@ function Adminroutes() {
             </Route>
             <Route path="users">
               <Route index element={<Users />} />
-              <Route
-                path="update/:id"
-                element={<UpdateUsers title="Update Users" />}
-              />
             </Route>
             <Route path="orders">
               <Route index element={<Orders />} />
             </Route>
-            <Route path="ordershistory">
-              <Route index element={<OrderHistory />} />
+
+            <Route path="contact">
+              <Route index element={<Contact />} />
             </Route>
           </Route>
         </Routes>
