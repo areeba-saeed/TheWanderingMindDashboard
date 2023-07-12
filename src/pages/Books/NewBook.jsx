@@ -25,7 +25,7 @@ const NewBook = ({ title }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/categories")
+      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories")
       .then((response) => {
         setAllCategories(response.data);
       })
@@ -33,7 +33,7 @@ const NewBook = ({ title }) => {
         console.log(error);
       });
     axios
-      .get("http://localhost:5000/api/authors")
+      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors")
       .then((response) => {
         setAllAuthors(response.data);
       })
@@ -53,7 +53,7 @@ const NewBook = ({ title }) => {
     formData.append("author", author);
 
     axios
-      .post("http://localhost:5000/api/books/", formData)
+      .post("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/books/", formData)
       .then((response) => {
         setName("");
         setPrice("");

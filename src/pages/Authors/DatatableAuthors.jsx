@@ -18,7 +18,7 @@ const DatatableAuthors = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/authors")
+      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors")
       .then((response) => {
         setauthors(response.data);
       })
@@ -32,7 +32,7 @@ const DatatableAuthors = () => {
     const data = { name: name };
 
     axios
-      .post("http://localhost:5000/api/authors", data)
+      .post("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors", data)
       .then((res) => {
         setPopupText(`Author Added`);
         setname("");
@@ -55,7 +55,7 @@ const DatatableAuthors = () => {
     const data = { name: name };
 
     axios
-      .patch(`http://localhost:5000/api/authors/${id}`, data)
+      .patch(`https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors/${id}`, data)
       .then((res) => {
         setPopupText(`Author Updated`);
         setname("");
@@ -73,7 +73,7 @@ const DatatableAuthors = () => {
   };
 
   const handleDelete = (id) => {
-    axios.delete("http://localhost:5000/api/authors/" + id).then((response) => {
+    axios.delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors/" + id).then((response) => {
       console.log(response.data);
       setPopupshow(true);
       setPopupText("Authors Deleted");
@@ -86,7 +86,7 @@ const DatatableAuthors = () => {
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
       axios
-        .delete("http://localhost:5000/api/authors/" + row)
+        .delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors/" + row)
         .then((response) => {
           setauthors(response.data);
           setPopupshow(true);

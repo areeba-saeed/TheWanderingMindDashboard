@@ -11,7 +11,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/orders")
+      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/orders")
       .then((response) => {
         if (response.data.length > 0) {
           const filteredOrders = response.data.filter(

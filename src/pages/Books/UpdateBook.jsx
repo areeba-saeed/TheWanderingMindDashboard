@@ -27,7 +27,7 @@ const UpdateBook = ({ title }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/categories")
+      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories")
       .then((response) => {
         setAllCategories(response.data);
       })
@@ -35,7 +35,7 @@ const UpdateBook = ({ title }) => {
         console.log(error);
       });
     axios
-      .get("http://localhost:5000/api/authors")
+      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors")
       .then((response) => {
         setAllAuthors(response.data);
       })
@@ -55,7 +55,7 @@ const UpdateBook = ({ title }) => {
     formData.append("author", author);
 
     axios
-      .patch(`http://localhost:5000/api/books/${id}`, formData)
+      .patch(`https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/books/${id}`, formData)
       .then((res) => {
         console.log(res.data);
         setPopupshow(true);
