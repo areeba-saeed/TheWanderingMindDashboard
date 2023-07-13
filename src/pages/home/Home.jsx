@@ -2,6 +2,7 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import "./home.scss";
 import Widget from "../../components/widget/Widget";
+import Image from "../../assets/download.png";
 
 const Home = () => {
   return (
@@ -10,25 +11,19 @@ const Home = () => {
       <div className="homeContainer">
         <Navbar />
         <div className="widgets">
-          <Widget type="books" />
-          <Widget type="authors" />
-          <Widget type="categories" />
-        </div>
-        <div className="widgets">
           <Widget type="users" />
-          <Widget type="new" />
-          <Widget type="completed" />
+          <Widget type="blogs" />
+          <Widget type="comments" />
+          <Widget type="contacts" />
         </div>
-
-        <div className="charts">
-          {/* <Chart title="Last 6 Months (Revenue)" aspect={2 / 1} /> */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+          <img src={Image} width="600vh" height="500vh" />
         </div>
-        {/* <div className="listContainer">
-          <div className="listTitle">Latest Transactions</div>
-           <Table />
-           </div> */}
-
-        {/* <BarChart /> */}
       </div>
     </div>
   );

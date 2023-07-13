@@ -14,7 +14,7 @@ const DatatableUsers = () => {
 
   useEffect(() => {
     axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/user")
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -25,7 +25,7 @@ const DatatableUsers = () => {
 
   const handleDelete = (id) => {
     axios
-      .delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/user/delete/" + id)
+      .delete("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/users/delete/" + id)
       .then((response) => {
         console.log(response.data);
       });
@@ -40,7 +40,7 @@ const DatatableUsers = () => {
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
       axios
-        .delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/user/delete/" + row)
+        .delete("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/users/delete/" + row)
         .then((response) => {
           setPopupshow(true);
           setPopupText(`${selectedRows.length} Users Deleted`);
@@ -63,11 +63,23 @@ const DatatableUsers = () => {
       headerName: "Email",
       width: 280,
     },
+
     {
-      field: "phoneNo",
-      headerName: "Mobile number",
-      width: 180,
+      field: "image",
+      headerName: "Image",
+      width: 200,
+      renderCell: (params) => {
+        const imageUrl = `https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/user/images/${params.row.image}`;
+        return (
+          <img
+            src={imageUrl}
+            alt={params.row.image}
+            style={{ width: 40, height: 40 }}
+          />
+        );
+      },
     },
+
     {
       field: "action",
       headerName: "Action",

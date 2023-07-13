@@ -1,15 +1,13 @@
 import React from "react";
 import Home from "../pages/home/Home";
-import NewBook from "../pages/Books/NewBook";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import UpdateBook from "../pages/Books/UpdateBook.jsx";
 import Categories from "../pages/Categories/Categories";
 import Users from "../pages/Users/Users";
-import Orders from "../pages/NewOrders/Orders";
-import Books from "../pages/Books/Books";
-import Authors from "../pages/Authors/Authors";
 import Contact from "../pages/Contact/Contact";
 import Login from "../pages/Login/Login";
+import NewBlog from "../pages/Blogs/NewBlog";
+import Blogs from "../pages/Blogs/Blogs";
+import UpdateBlog from "../pages/Blogs/UpdateBlog";
 
 function Adminroutes() {
   return (
@@ -23,23 +21,17 @@ function Adminroutes() {
             <Route path="categories">
               <Route index element={<Categories />} />
             </Route>
-            <Route path="authors">
-              <Route index element={<Authors />} />
-            </Route>
 
-            <Route path="books">
-              <Route index element={<Books />} />
-              <Route path="new" element={<NewBook title="Add New Book" />} />
+            <Route path="blogs">
+              <Route index element={<Blogs />} />
+              <Route path="new" element={<NewBlog title="Add New Blog" />} />
               <Route
                 path="update/:id"
-                element={<UpdateBook title="Update Books" />}
+                element={<UpdateBlog title="Update Blog" />}
               />
             </Route>
             <Route path="users">
               <Route index element={<Users />} />
-            </Route>
-            <Route path="orders">
-              <Route index element={<Orders />} />
             </Route>
 
             <Route path="contact">

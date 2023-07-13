@@ -8,7 +8,6 @@ import PopupAlert from "../../components/popupalert/popupAlert";
 const DatatableCategory = () => {
   const [categories, setcategories] = useState([]);
   const [name, setname] = useState("");
-  const [image, setImage] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [popUpShow, setPopupshow] = useState(false);
@@ -19,7 +18,7 @@ const DatatableCategory = () => {
 
   useEffect(() => {
     axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories")
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/categories")
       .then((response) => {
         setcategories(response.data);
       })
@@ -30,14 +29,11 @@ const DatatableCategory = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("image", image);
+    const data = { name: name };
 
     axios
-      .post("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories", formData)
+      .post("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/categories", data)
       .then((res) => {
-        console.log(res.data);
         setcategories(res.data);
         setPopupText(`Category Added`);
         setname("");
@@ -57,11 +53,9 @@ const DatatableCategory = () => {
       });
   };
   const handleUpdate = (id) => {
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("image", image);
+    const data = { name: name };
     axios
-      .patch(`https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories/${id}`, formData)
+      .patch(`https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/categories/${id}`, data)
       .then((res) => {
         setPopupText(`Category Updated`);
         setname("");
@@ -80,7 +74,7 @@ const DatatableCategory = () => {
 
   const handleDelete = (id) => {
     axios
-      .delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories/" + id)
+      .delete("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/categories/" + id)
       .then((response) => {
         console.log(response.data);
         setPopupshow(true);
@@ -94,7 +88,7 @@ const DatatableCategory = () => {
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
       axios
-        .delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories/" + row)
+        .delete("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/categories/" + row)
         .then((response) => {
           setcategories(response.data);
           setPopupshow(true);
@@ -109,21 +103,6 @@ const DatatableCategory = () => {
 
   const actionColumn = [
     { field: "name", headerName: "Name", width: 200 },
-    {
-      field: "image",
-      headerName: "Image",
-      width: 200,
-      renderCell: (params) => {
-        const imageUrl = `https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories/images/${params.row.image}`;
-        return (
-          <img
-            src={imageUrl}
-            alt={params.row.image}
-            style={{ width: 40, height: 40 }}
-          />
-        );
-      },
-    },
     {
       field: "action",
       headerName: "Action",
@@ -197,13 +176,6 @@ const DatatableCategory = () => {
                     setname(e.target.value);
                   }}
                 />
-                <input
-                  type="file"
-                  className="category-image"
-                  onChange={(e) => {
-                    setImage(e.target.files[0]);
-                  }}
-                />
 
                 <button className="createButton">Add</button>
               </form>
@@ -241,13 +213,6 @@ const DatatableCategory = () => {
                   value={name}
                   onChange={(e) => {
                     setname(e.target.value);
-                  }}
-                />
-                <input
-                  type="file"
-                  className="category-image"
-                  onChange={(e) => {
-                    setImage(e.target.files[0]);
                   }}
                 />
 

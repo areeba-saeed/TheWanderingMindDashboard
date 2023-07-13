@@ -7,30 +7,22 @@ import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
 const Widget = ({ type }) => {
-  const [books, setBooks] = useState([]);
-  const [authors, setAuthors] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [users, setUsers] = useState([]);
-  const [newOrders, setNewOrders] = useState([]);
-  const [completedOrders, setCompletedOrders] = useState([]);
-
-  console.log(books);
 
   useEffect(() => {
     axios
-      .get(
-        "https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/books"
-      )
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/blogs")
       .then((response) => {
-        setBooks(response.data.length);
+        setBlogs(response.data.length);
       })
       .catch((error) => {
         console.log(error);
       });
     axios
-      .get(
-        "https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/users"
-      )
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/users")
       .then((response) => {
         setUsers(response.data.length);
       })
@@ -38,54 +30,36 @@ const Widget = ({ type }) => {
         console.log(error);
       });
     axios
-      .get(
-        "https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories"
-      )
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/contacts")
       .then((response) => {
-        setCategories(response.data.length);
+        const findPending = response.data.filter(
+          (row) => row.status === "Pending"
+        );
+        setContacts(findPending.length);
       })
       .catch((error) => {
         console.log(error);
       });
     axios
-      .get(
-        "https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors"
-      )
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/comments")
       .then((response) => {
-        setAuthors(response.data.length);
+        setComments(response.data.length);
       })
       .catch((error) => {
         console.log(error);
       });
-    axios
-      .get(
-        "https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/orders"
-      )
-      .then((response) => {
-        const newOrdersFind = response.data.filter(
-          (row) => row.status === "New Order"
-        );
-        setNewOrders(newOrdersFind.length);
-        const completedOrdersFind = response.data.filter(
-          (row) => row.status === "Completed"
-        );
-        setCompletedOrders(completedOrdersFind.length);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [books, users, categories, authors, newOrders, completedOrders]);
+  }, [blogs, users, contacts, comments]);
   let data;
 
   //temporary
   // const diff = 20;
 
   switch (type) {
-    case "books":
+    case "blogs":
       data = {
         title: "TOTAL BOOKS",
         isMoney: false,
-        amount: <CountUp start={0} end={books} duration={3} />,
+        amount: <CountUp start={0} end={blogs} duration={3} />,
 
         // link: "See all users",
         icon: (
@@ -99,11 +73,11 @@ const Widget = ({ type }) => {
         ),
       };
       break;
-    case "authors":
+    case "comments":
       data = {
-        title: "TOTAL AUTHORS",
+        title: "TOTAL COMMENTS",
         isMoney: false,
-        amount: <CountUp start={0} end={authors} duration={3} />,
+        amount: <CountUp start={0} end={comments} duration={3} />,
 
         // link: "See all users",
         icon: (
@@ -117,11 +91,11 @@ const Widget = ({ type }) => {
         ),
       };
       break;
-    case "categories":
+    case "contacts":
       data = {
-        title: "TOTAL CATEGORIES",
+        title: "TOTAL CONTACTS",
         isMoney: false,
-        amount: <CountUp start={0} end={categories} duration={3} />,
+        amount: <CountUp start={0} end={contacts} duration={3} />,
 
         // link: "View all orders",
         icon: (
@@ -144,40 +118,6 @@ const Widget = ({ type }) => {
         // link: "View all orders",
         icon: (
           <LocationCityIcon
-            className="icon"
-            style={{
-              backgroundColor: "white",
-              color: "black",
-            }}
-          />
-        ),
-      };
-      break;
-    case "new":
-      data = {
-        title: "TOTAL NEW ORDERS",
-        isMoney: false,
-        amount: <CountUp start={0} end={newOrders} duration={3} />,
-        // link: "View all orders",
-        icon: (
-          <MedicationIcon
-            className="icon"
-            style={{
-              backgroundColor: "white",
-              color: "black",
-            }}
-          />
-        ),
-      };
-      break;
-    case "completed":
-      data = {
-        title: "TOTAL COMPLETED ORDERS",
-        isMoney: false,
-        amount: <CountUp start={0} end={completedOrders} duration={3} />,
-        // link: "View all orders",
-        icon: (
-          <MedicationIcon
             className="icon"
             style={{
               backgroundColor: "white",

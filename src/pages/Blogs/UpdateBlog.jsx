@@ -8,36 +8,25 @@ import PopupAlert from "../../components/popupalert/popupAlert";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-const UpdateBook = ({ title }) => {
+const UpdateBlog = ({ title }) => {
   const location = useLocation();
   const data = location.state.data;
   const [name, setName] = useState(data.name);
   const [category, setCategory] = useState(data.category._id);
   const [description, setDescription] = useState(data.description);
   const [image, setImage] = useState(null);
-  const [author, setAuthor] = useState(data.author._id);
-  const [price, setPrice] = useState(data.price);
   const [allCategories, setAllCategories] = useState([]);
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
-  const [allAuthors, setAllAuthors] = useState([]);
   const navigate = useNavigate();
 
   const { id } = useParams();
 
   useEffect(() => {
     axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories")
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/categories")
       .then((response) => {
         setAllCategories(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors")
-      .then((response) => {
-        setAllAuthors(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -49,26 +38,54 @@ const UpdateBook = ({ title }) => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("image", image);
-    formData.append("price", price);
     formData.append("description", description);
     formData.append("category", category);
-    formData.append("author", author);
 
     axios
-      .patch(`https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/books/${id}`, formData)
+      .patch(`https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/blogs/${id}`, formData)
       .then((res) => {
         console.log(res.data);
         setPopupshow(true);
-        setPopupText("Book Updated");
+        setPopupText("Blog Updated");
         setTimeout(() => {
           setPopupshow(false);
-          navigate("/books");
+          navigate("/blogs");
         }, 1500);
       })
       .catch((err) => {
         console.log(err);
       });
   };
+
+  const quillModules = {
+    toolbar: [
+      ["bold", "italic", "underline", "strike"], // text formatting options
+      [{ header: [1, 2, 3, 4, 5, 6, false] }], // header styles
+      [{ list: "ordered" }, { list: "bullet" }], // lists
+      ["link", "image"], // link and image options
+      [{ color: [] }], // color option
+      [{ align: [] }], // text alignment option
+      [{ size: ["small", false, "large", "huge"] }],
+      [{ font: [] }], // custom font style option
+      ["clean"], // remove formatting
+    ],
+  };
+
+  const quillFormats = [
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "header",
+    "list",
+    "bullet",
+    "link",
+    "image",
+    "color",
+    "align",
+    "font",
+    "size",
+  ];
 
   return (
     <div className="new">
@@ -97,37 +114,16 @@ const UpdateBook = ({ title }) => {
           <div className="right">
             <form className="form-new" onSubmit={handleUpdate}>
               <div className="formInput">
-                <label className="label-form">Book Name</label>
+                <label className="label-form">Blog Name</label>
                 <input
                   type="text"
                   className="input-form"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                <label className="label-form">Book Price</label>
-                <input
-                  type="number"
-                  className="input-form"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
-                <label className="label-form">Book Author</label>
-                <select
-                  className="input-form"
-                  value={author}
-                  onChange={(e) => {
-                    setAuthor(e.target.value);
-                  }}>
-                  <option value="">Choose a author</option>
-                  {allAuthors.map((data) => {
-                    return (
-                      <option value={data._id} key={data._id}>
-                        {data.name}
-                      </option>
-                    );
-                  })}
-                </select>
-                <label className="label-form">Book Category</label>
+                <label className="label-form">Blog User</label>
+
+                <label className="label-form">Blog Category</label>
                 <select
                   className="input-form"
                   value={category}
@@ -142,12 +138,14 @@ const UpdateBook = ({ title }) => {
                     );
                   })}
                 </select>
-                <label className="label-form">Book Description</label>
+                <label className="label-form">Blog Description</label>
                 <ReactQuill
                   value={description}
                   onChange={(value) => setDescription(value)}
+                  modules={quillModules}
+                  formats={quillFormats}
                 />
-                <label className="label-form">Book Image</label>
+                <label className="label-form">Blog Image</label>
                 <input
                   type="file"
                   className="category-image"
@@ -165,4 +163,4 @@ const UpdateBook = ({ title }) => {
   );
 };
 
-export default UpdateBook;
+export default UpdateBlog;

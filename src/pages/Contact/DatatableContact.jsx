@@ -13,7 +13,7 @@ const DatableContact = () => {
 
   useEffect(() => {
     axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/contact")
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/contact")
       .then((response) => {
         setcontact(response.data);
       })
@@ -24,7 +24,7 @@ const DatableContact = () => {
 
   const handleStatus = (id, status) => {
     axios
-      .patch(`https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/contact/${id}`, { status: status })
+      .patch(`https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/contact/${id}`, { status: status })
       .then((response) => {
         console.log(response.data);
         // setPopupText("Stauts changed");
@@ -39,7 +39,7 @@ const DatableContact = () => {
       });
   };
   const handleDelete = (id) => {
-    axios.delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/contact/" + id).then((response) => {
+    axios.delete("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/contact/" + id).then((response) => {
       console.log(response.data);
     });
     setPopupText("Contact Deleted");
@@ -53,7 +53,7 @@ const DatableContact = () => {
   const handleDeleteSelectedRows = () => {
     selectedRows.forEach((row) => {
       axios
-        .delete("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/contact/" + row)
+        .delete("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/contact/" + row)
         .then((response) => {
           console.log(response.data);
           const filteredcontact = response.data.filter(

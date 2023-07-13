@@ -1,18 +1,18 @@
 import "../../style/list.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
-import DatatableBooks from "./DatatableBooks";
+import DatatableBlogs from "./DatatableBlog";
 
-const Books = () => {
+const Blogs = () => {
   return (
     <div className="list">
       <Sidebar />
       <div className="listContainer">
         <Navbar />
-        <DatatableBooks />
+        <DatatableBlogs />
       </div>
     </div>
   );
 };
 
-export default Books;
+export default Blogs;

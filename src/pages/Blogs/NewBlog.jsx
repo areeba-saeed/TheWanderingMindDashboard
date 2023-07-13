@@ -9,23 +9,51 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 
-const NewBook = ({ title }) => {
+const NewBlog = ({ title }) => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
-  const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
-  const [price, setPrice] = useState("");
+  const [user, setUser] = useState("");
   const [allCategories, setAllCategories] = useState([]);
-  const [allAuthors, setAllAuthors] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [popUpShow, setPopupshow] = useState(false);
   const [popUpText, setPopupText] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const quillModules = {
+    toolbar: [
+      ["bold", "italic", "underline", "strike"], // text formatting options
+      [{ header: [1, 2, 3, 4, 5, 6, false] }], // header styles
+      [{ list: "ordered" }, { list: "bullet" }], // lists
+      ["link", "image"], // link and image options
+      [{ color: [] }], // color option
+      [{ align: [] }], // text alignment option
+      [{ size: ["small", false, "large", "huge"] }],
+      [{ font: [] }], // custom font style option
+      ["clean"], // remove formatting
+    ],
+  };
+
+  const quillFormats = [
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "header",
+    "list",
+    "bullet",
+    "link",
+    "image",
+    "color",
+    "align",
+    "font",
+    "size",
+  ];
 
   useEffect(() => {
     axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/categories")
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/categories")
       .then((response) => {
         setAllCategories(response.data);
       })
@@ -33,9 +61,9 @@ const NewBook = ({ title }) => {
         console.log(error);
       });
     axios
-      .get("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/authors")
+      .get("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/users")
       .then((response) => {
-        setAllAuthors(response.data);
+        setAllUsers(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -47,24 +75,23 @@ const NewBook = ({ title }) => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("image", image);
-    formData.append("price", price);
+    formData.append("user", user);
     formData.append("description", description);
     formData.append("category", category);
-    formData.append("author", author);
 
     axios
-      .post("https://protected-plateau-82492-26f0113d64bb.herokuapp.com/api/books/", formData)
+      .post("https://the-wandering-mind-57dc8d77c813.herokuapp.com/api/blogs/", formData)
       .then((response) => {
+        console.log(response.data);
         setName("");
-        setPrice("");
+        setUser("");
         setDescription("");
-        setAuthor("");
         setCategory("");
         setPopupshow(true);
-        setPopupText("Book Added");
+        setPopupText("Blog Added");
         setTimeout(() => {
           setPopupshow(false);
-          navigate("/books");
+          navigate("/blogs");
         }, 1500);
       })
       .catch((error) => {
@@ -109,7 +136,7 @@ const NewBook = ({ title }) => {
               encType="multipart/form-data"
               action="/upload">
               <div className="formInput">
-                <label className="label-form">Book Name</label>
+                <label className="label-form">Blog Name</label>
                 <input
                   type="text"
                   className="input-form"
@@ -118,29 +145,19 @@ const NewBook = ({ title }) => {
                     setName(e.target.value);
                   }}
                 />
-                <label className="label-form">Book Price</label>
-                <input
-                  type="number"
-                  placeholder="220"
-                  className="input-form"
-                  value={price}
-                  onChange={(e) => {
-                    setPrice(e.target.value);
-                  }}
-                />
-                <label className="label-form">Book Author</label>
+                <label className="label-form">Blog User</label>
                 <select
                   className="input-form"
-                  value={author}
+                  value={user}
                   onChange={(e) => {
-                    setAuthor(e.target.value);
+                    setUser(e.target.value);
                   }}>
-                  <option value="">Choose a author</option>
-                  {allAuthors.map((data) => {
+                  <option value="">Choose a user</option>
+                  {allUsers.map((data) => {
                     return <option value={data._id}>{data.name}</option>;
                   })}
                 </select>
-                <label className="label-form">Book Category</label>
+                <label className="label-form">Blog Category</label>
                 <select
                   className="input-form"
                   value={category}
@@ -152,12 +169,14 @@ const NewBook = ({ title }) => {
                     return <option value={data._id}>{data.name}</option>;
                   })}
                 </select>
-                <label className="label-form">Book Description</label>
+                <label className="label-form">Blog Description</label>
                 <ReactQuill
                   value={description}
                   onChange={(value) => setDescription(value)}
+                  modules={quillModules}
+                  formats={quillFormats}
                 />
-                <label className="label-form">Book Image</label>
+                <label className="label-form">Blog Image</label>
                 <input
                   type="file"
                   className="category-image"
@@ -175,4 +194,4 @@ const NewBook = ({ title }) => {
   );
 };
 
-export default NewBook;
+export default NewBlog;
